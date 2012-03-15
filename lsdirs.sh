@@ -3,6 +3,28 @@
 source ~/code/bash/getoptx/getoptx.bash
 source ~/code/bash/upvars/upvars.sh
 
+#=======================================================================
+#
+#         FILE: lsdirs.sh
+#
+#        USAGE: See function usage below.
+#
+#  DESCRIPTION: Print a list (a subset) of directories which is a
+#               combination of the set of directories listed in PATH...,
+#               whose total size in bytes is less than the amount
+#               specified in the max-size option and greater than
+#               the size of any other combination that satisfies that
+#               condition.
+#
+# REQUIREMENTS: upvars.sh, getoptx.sh
+#         BUGS: --
+#        NOTES: --
+#       AUTHOR: Marcelo Auquer, auquer@gmail.com
+#      CREATED: 03/13/2012
+#     REVISION: 03/13/2012
+#
+#======================================================================= 
+
 #===  FUNCTION =========================================================
 #
 #        NAME: usage
@@ -14,37 +36,121 @@ source ~/code/bash/upvars/upvars.sh
 #=======================================================================
 usage () {
 	cat <<- EOF
-	Usage: chpathn.sh [OPTIONS] PATH...
+	Usage: lsdirs.sh --max-size BYTES PATH... 
 	
 	Change the name of files and subdirectories of the directories
 	listed in PATH...
 
-	--ascii-vowels Replace non-ascii vowels with ascii ones.
-	 -h
+	--max-size The maximum size to be observed.
 	EOF
 }
 
 #===  FUNCTION =========================================================
 #
-#        NAME: asciivowels
+#        NAME: get_masks
 #
-#       USAGE: asciivowels PATHNAME PATTERN VARNAME
+#       USAGE: get_masks VARNAME LENGTH
 #
-# DESCRIPTION: Use the expanded value of PATTERN (the parent_matcher) to
-#              match a beggining substring (a prefix) of the expanded
-#              value of PATHNAME (pathname) to be preserved of further
-#              editing of this function. Replace in the trailing
-#              substring not matched by the parent_matcher (the suffix)
-#              every character of a non-ascii vowel with his matching
-#              ascii vowel character. Store the resulting string in the
-#              caller's variable VARNAME.
+# DESCRIPTION: Generate a spaced-separated list of all posible
+#              combinations of ones and zeros of the specified length.
+#              Store that list in the caller's variable VARNAME.
 #
-#  PARAMETERS: PATHNAME (A string).
-#              PATTERN  (A word subject of tilde expansion, parameter
-#                        expansion, command substitution and arithmetic
-#                        substitution). 
-#              VARNAME  (A variable name).
+#  PARAMETERS: VARNAME: A variable name.
+#              LENGTH:  The amount of numbers in each combination to be
+#                       formed.
+#
 #=======================================================================
+get_masks () {
+	for (( i=0; i<$2; i++ ))
+	do
+		bracestr="${bracestr}{0..1}"
+	done
+	local masklist=$(sh -c "echo $bracestr")
+	local masktot=$((2**${2}))
+	local $1 && upvars -a$masktot $1 $masklist
+}
+
+#===  FUNCTION =========================================================
+#
+#        NAME: get_maxdirs
+#
+#       USAGE: get_maxdirs VARNAME MAXSIZE PATH...
+#
+# DESCRIPTION: Calculate the maximum amount of directories that can be
+#              included in a subset without surpassing the maximum size
+#              limit. Store that number in the caller's variable
+#              VARNAME.
+#
+#  PARAMETERS: VARNAME: A variable name.
+#              MAXSIZE: A size in bytes.
+#              PATH...: A list of directories.
+#
+#=======================================================================
+get_maxdirs () {
+	local sortdu=$(du -s ${@:3} | sort -n | cut -f1)
+	local acsize=0
+	local numofdirs=0
+	for size in $sortdu
+	do
+		acsize=$((acsize+size))
+		numofdirs=$((numofdirs+1))
+		[[ $acsize -gt $2 ]] && break
+	done
+	local $1 && upvar $1 $numofdirs
+}
+
+#===  FUNCTION =========================================================
+#
+#        NAME: get_mindirs
+#
+#       USAGE: get_mindirs VARNAME MAXSIZE PATH...
+#
+# DESCRIPTION: Calculate the minimum amount of directories to be
+#              included in a subset. Store that number in the caller's
+#              variable VARNAME.
+#
+#  PARAMETERS: VARNAME: A variable name.
+#              MAXSIZE: A size in bytes.
+#              PATH...: A list of directories.
+#
+#=======================================================================
+get_mindirs () {
+	local sortdu=$(du -s ${@:3} | sort -nr | cut -f1)
+	local acsize=0
+	local numofdirs=0
+	for size in $sortdu
+	do
+		acsize=$((acsize+size))
+		numofdirs=$((numofdirs+1))
+		[[ $acsize -gt $2 ]] && break
+	done
+	local $1 && upvar $1 $numofdirs
+}
+
+#===  FUNCTION =========================================================
+#
+#        NAME: is_validmask
+#
+#       USAGE: is_validmask MASK MIN MAX PATH...
+#
+# DESCRIPTION: Return 0 if MASK has a valid number of ones that allows
+#              it to be used to select a valid number of directories of
+#              PATH... to be included in a subset, without surpassing
+#              the total size limit specified by MAXSIZE. Otherwise,
+#              return 1.
+#
+#  PARAMETERS: MASK:    A string containing only ones and zeros.
+#              MIN:     Minimum number of ones in a mask to be valid.
+#              MAX:     Maximum number of ones in a mask to be valid.
+#              PATH...: A list of directories.
+#
+#=======================================================================
+is_validmask () {
+	ones="${1//[^1]}"
+	( [[ ${#ones} -lt $2 ]] || [[ ${#ones} -gt $3 ]] ) && return 1
+	return 0
+}
+
 #-----------------------------------------------------------------------
 # BEGINNING OF MAIN CODE
 #-----------------------------------------------------------------------
@@ -57,46 +163,34 @@ do
 	esac
 done
 shift $(($OPTIND-1))
-dus=$(du -s ${@} | sort -n | cut -f1)
-sizeac=0
-counter=0 # Máxima cantidad de elementos sin superar maxsize
-for size in $dus
+
+#-----------------------------------------------------------------------
+# Select the best combination of directories.
+#-----------------------------------------------------------------------
+
+get_maxdirs maxdirs $maxsize $@
+get_mindirs mindirs $maxsize $@
+dirpaths=(${@})
+get_masks masks $#
+for mask in ${masks[@]}
 do
-	sizeac=$((sizeac+size))
-	counter=$((counter+1))
-	[[ $sizeac -gt $maxsize ]] && break
-done
-currsize=0
-currcount=
-size=0
-duarr=
-array=(${@})
-for arg
-do
-	countstr="${countstr}{0..1}"
-done
-for count in $(sh -c "echo $countstr")
-do
-	ones="${count//[^1]}"
-	[[ ${#ones} -gt $counter ]] && continue
-	for ((i=0; i < ${#count}; i++))
-	do
-		if [ ${count:$i:1} == 1 ]
-		then
-			duarr=( $(du -s ${array[$i]}) )
-			size=$(($size+${duarr[0]}))
-		fi
-	done
-	[[ ($size -gt $currsize) && ($size -lt $maxsize) ]] && \
-		currsize=$size && currcount=$count
+	! is_validmask $mask $mindirs $maxdirs $@ && continue
 	size=0
-	duarr=
+	for ((i=0; i < ${#mask}; i++))
+	do
+		[[ ${mask:$i:1} == 1 ]] && \
+		       	size=$(stat --printf=%s ${dirpaths[$i]})
+	done
+	[[ ($size -gt $closersize) && ($size -lt $maxsize) ]] && \
+		closersize=$size && bestmask=$mask
 done
-for ((f=0; f < ${#currcount}; f++))
+
+#-----------------------------------------------------------------------
+# Print the results.
+#-----------------------------------------------------------------------
+
+for (( f=0; f < ${#bestmask}; f++ ))
 do
-	if [ ${currcount:$f:1} == 1 ]
-	then
-		echo ${array[$f]}
-	fi
+	[[ ${bestmask:$f:1} == 1 ]] && echo ${dirpaths[$f]}
 done
-echo "Total: $currsize"
+echo "Total: $closersize"
