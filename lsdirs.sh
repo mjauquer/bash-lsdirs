@@ -165,13 +165,26 @@ done
 shift $(($OPTIND-1))
 
 #-----------------------------------------------------------------------
+# Filter larger directories than MAXSIZE.
+#-----------------------------------------------------------------------
+
+for arg
+do
+	if [ $(stat --printf=%s $arg) -lt $maxsize ]
+	then
+		dirpaths[$ind]=$arg
+		ind=$((ind+1))
+	fi
+done
+
+#-----------------------------------------------------------------------
 # Select the best combination of directories.
 #-----------------------------------------------------------------------
 
 get_maxdirs maxdirs $maxsize $@
 get_mindirs mindirs $maxsize $@
-dirpaths=(${@})
-get_masks masks $#
+
+get_masks masks ${#dirpaths[@]}
 for mask in ${masks[@]}
 do
 	! is_validmask $mask $mindirs $maxdirs $@ && continue
