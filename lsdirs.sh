@@ -146,7 +146,7 @@ get_mindirs () {
 #
 #=======================================================================
 is_validmask () {
-	ones="${1//[^1]}"
+	local ones="${1//[^1]}"
 	( [[ ${#ones} -lt $2 ]] || [[ ${#ones} -gt $3 ]] ) && return 1
 	return 0
 }
@@ -165,14 +165,16 @@ done
 shift $(($OPTIND-1))
 
 #-----------------------------------------------------------------------
-# Filter larger directories than MAXSIZE.
+# Filter directories larger than MAXSIZE.
 #-----------------------------------------------------------------------
 
 for arg
 do
-	if [ $(stat --printf=%s $arg) -lt $maxsize ]
+	duarr=( $(du -s $arg) )
+	if [ ${duarr[0]} -lt $maxsize ]
 	then
-		dirpaths[$ind]=$arg
+		sizarr[$ind]=${duarr[0]}
+		dirarr[$ind]=${duarr[1]}
 		ind=$((ind+1))
 	fi
 done
@@ -181,18 +183,19 @@ done
 # Select the best combination of directories.
 #-----------------------------------------------------------------------
 
-get_maxdirs maxdirs $maxsize $@
-get_mindirs mindirs $maxsize $@
-
-get_masks masks ${#dirpaths[@]}
+get_maxdirs maxdirs $maxsize ${dirarr[@]}
+get_mindirs mindirs $maxsize ${dirarr[@]}
+get_masks masks ${#dirarr[@]}
 for mask in ${masks[@]}
 do
-	! is_validmask $mask $mindirs $maxdirs $@ && continue
+	! is_validmask $mask $mindirs $maxdirs ${dirarr[@]} && continue
 	size=0
 	for ((i=0; i < ${#mask}; i++))
 	do
-		[[ ${mask:$i:1} == 1 ]] && \
-		       	size=$(stat --printf=%s ${dirpaths[$i]})
+		if [ ${mask:$i:1} == 1 ]
+		then
+			size=$(($size+${sizarr[$i]}))
+		fi
 	done
 	[[ ($size -gt $closersize) && ($size -lt $maxsize) ]] && \
 		closersize=$size && bestmask=$mask
@@ -204,6 +207,6 @@ done
 
 for (( f=0; f < ${#bestmask}; f++ ))
 do
-	[[ ${bestmask:$f:1} == 1 ]] && echo ${dirpaths[$f]}
+	[[ ${bestmask:$f:1} == 1 ]] && echo ${dirarr[$f]}
 done
 echo "Total: $closersize"
