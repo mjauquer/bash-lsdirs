@@ -1,7 +1,7 @@
 #! /bin/sh
 
-source ~/code/bash/getoptx/getoptx.bash
-source ~/code/bash/upvars/upvars.sh
+source ~/code/bash/lib/getoptx/getoptx.bash
+source ~/code/bash/lib/upvars/upvars.sh
 
 #=======================================================================
 #
@@ -21,7 +21,7 @@ source ~/code/bash/upvars/upvars.sh
 #        NOTES: --
 #       AUTHOR: Marcelo Auquer, auquer@gmail.com
 #      CREATED: 03/13/2012
-#     REVISION: 03/13/2012
+#     REVISION: 03/17/2012
 #
 #======================================================================= 
 
