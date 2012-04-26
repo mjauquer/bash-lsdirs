@@ -1,7 +1,7 @@
 #! /bin/sh
 
-source ~/code/bash/lib/getoptx/getoptx.bash
-source ~/code/bash/lib/upvars/upvars.sh
+source ~/code/bash/lsdirs/getoptx.bash
+source ~/code/bash/lsdirs/upvars.sh
 
 #=======================================================================
 #
@@ -36,7 +36,7 @@ source ~/code/bash/lib/upvars/upvars.sh
 #=======================================================================
 usage () {
 	cat <<- EOF
-	Usage: lsdirs.sh --max-size BYTES PATH... 
+	Usage: lsdirs.sh --max-size KILOBYTES PATH... 
 	
 	Change the name of files and subdirectories of the directories
 	listed in PATH...
@@ -92,9 +92,11 @@ get_maxdirs () {
 	local numofdirs=0
 	for size in $sortdu
 	do
-		acsize=$((acsize+size))
-		numofdirs=$((numofdirs+1))
-		[[ $acsize -gt $2 ]] && break
+		while [ $acsize -lt $2 ]
+		do
+			acsize=$((acsize+size))
+			numofdirs=$((numofdirs+1))
+		done
 	done
 	local $1 && upvar $1 $numofdirs
 }
@@ -120,9 +122,11 @@ get_mindirs () {
 	local numofdirs=0
 	for size in $sortdu
 	do
-		acsize=$((acsize+size))
-		numofdirs=$((numofdirs+1))
-		[[ $acsize -gt $2 ]] && break
+		while [ $acsize -le $2 ]
+		do
+			acsize=$((acsize+size))
+			numofdirs=$((numofdirs+1))
+		done
 	done
 	local $1 && upvar $1 $numofdirs
 }
@@ -146,8 +150,11 @@ get_mindirs () {
 #
 #=======================================================================
 is_validmask () {
-	local ones="${1//[^1]}"
-	( [[ ${#ones} -lt $2 ]] || [[ ${#ones} -gt $3 ]] ) && return 1
+	local ones=${1//[^1]}
+	if [ \( ${#ones} -lt $2 \) -o \( ${#ones} -gt $3 \) ] 
+	then
+		return 1
+	fi
 	return 0
 }
 
@@ -186,9 +193,10 @@ done
 get_maxdirs maxdirs $maxsize ${dirarr[@]}
 get_mindirs mindirs $maxsize ${dirarr[@]}
 get_masks masks ${#dirarr[@]}
+closersize=0
 for mask in ${masks[@]}
 do
-	! is_validmask $mask $mindirs $maxdirs ${dirarr[@]} && continue
+	! is_validmask $mask $mindirs $maxdirs && continue
 	size=0
 	for ((i=0; i < ${#mask}; i++))
 	do
@@ -197,8 +205,11 @@ do
 			size=$(($size+${sizarr[$i]}))
 		fi
 	done
-	[[ ($size -gt $closersize) && ($size -lt $maxsize) ]] && \
-		closersize=$size && bestmask=$mask
+	if [ \( $size -gt $closersize \) -a \( $size -le $maxsize \) ]
+	then
+		closersize=$size
+		bestmask=$mask
+	fi
 done
 
 #-----------------------------------------------------------------------
