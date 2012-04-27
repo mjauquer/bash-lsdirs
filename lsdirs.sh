@@ -21,7 +21,7 @@ source ~/code/bash/lsdirs/upvars.sh
 #        NOTES: --
 #       AUTHOR: Marcelo Auquer, auquer@gmail.com
 #      CREATED: 03/13/2012
-#     REVISION: 03/17/2012
+#     REVISION: 04/27/2012
 #
 #======================================================================= 
 
@@ -42,6 +42,8 @@ usage () {
 	listed in PATH...
 
 	--max-size The maximum size to be observed.
+	             Some useful sizes: 
+	               4167680 (4020 Mb).
 	EOF
 }
 
