@@ -36,14 +36,14 @@ source ~/code/bash/lsdirs/upvars.sh
 #=======================================================================
 usage () {
 	cat <<- EOF
-	Usage: lsdirs.sh --max-size KILOBYTES PATH... 
+	Usage: lsdirs --max-size KILOBYTES PATH... 
 	
 	Change the name of files and subdirectories of the directories
 	listed in PATH...
 
 	--max-size The maximum size to be observed.
 	             Some useful sizes: 
-	               4167680 (4020 Mb).
+	               4167680 (4070 Mb).
 	EOF
 }
 
