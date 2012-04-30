@@ -44,6 +44,7 @@ usage () {
 	--max-size The maximum size to be observed.
 	             Some useful sizes: 
 	               4167680 (4070 Mb).
+		       4595712 (4488 Mb) (DVD-R full capacity).
 	EOF
 }
 
