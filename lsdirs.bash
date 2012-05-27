@@ -1,7 +1,7 @@
-#! /bin/sh
+#! /bin/bash
 
-source ~/code/bash/lsdirs/getoptx.bash
-source ~/code/bash/lsdirs/upvars.sh
+source ~/code/bash/lsdirs/getoptx/getoptx.bash
+source ~/code/bash/lsdirs/upvars/upvars.bash
 
 #=======================================================================
 #
@@ -95,11 +95,10 @@ get_maxdirs () {
 	local numofdirs=0
 	for size in $sortdu
 	do
-		while [ $acsize -lt $2 ]
-		do
-			acsize=$((acsize+size))
-			numofdirs=$((numofdirs+1))
-		done
+		nextsize=$((acsize+size))
+		[[ $nextsize -gt $2 ]] && break
+		acsize=$((acsize+size))
+		numofdirs=$((numofdirs+1))
 	done
 	local $1 && upvar $1 $numofdirs
 }
@@ -125,11 +124,10 @@ get_mindirs () {
 	local numofdirs=0
 	for size in $sortdu
 	do
-		while [ $acsize -le $2 ]
-		do
-			acsize=$((acsize+size))
-			numofdirs=$((numofdirs+1))
-		done
+		nextsize=$((acsize+size))
+		[[ $nextsize -gt $2 ]] && break
+		acsize=$((acsize+size))
+		numofdirs=$((numofdirs+1))
 	done
 	local $1 && upvar $1 $numofdirs
 }
@@ -200,9 +198,18 @@ do
 done
 
 #-----------------------------------------------------------------------
-# Select the best combination of directories.
+# If no directory is small than MAXSIZE exit with message.
 #-----------------------------------------------------------------------
 
+if [ ${#dirarr[@]} -eq 0 ]
+then
+	printf "No directory is smaller than the specified MAXSIZE."
+	exit 0
+fi
+
+#-----------------------------------------------------------------------
+# Select the best combination of directories.
+#-----------------------------------------------------------------------
 get_maxdirs maxdirs $maxsize ${dirarr[@]}
 get_mindirs mindirs $maxsize ${dirarr[@]}
 get_masks masks ${#dirarr[@]}
