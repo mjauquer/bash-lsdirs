@@ -1,11 +1,22 @@
 #! /bin/bash
 
-source ~/code/bash/lsdirs/getoptx/getoptx.bash
-source ~/code/bash/lsdirs/upvars/upvars.bash
-
 #=======================================================================
 #
-#         FILE: lsdirs.sh
+# lsdirs.bash
+# Copyright (C) 2012  Marcelo Javier Auquer
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #        USAGE: See function usage below.
 #
@@ -16,14 +27,17 @@ source ~/code/bash/lsdirs/upvars/upvars.bash
 #               the size of any other combination that satisfies that
 #               condition.
 #
-# REQUIREMENTS: upvars.sh, getoptx.sh
+# REQUIREMENTS: upvars.bash, getoptx.bash
 #         BUGS: --
-#        NOTES: --
-#       AUTHOR: Marcelo Auquer, auquer@gmail.com
+#        NOTES: Any suggestion is welcomed at auq..r@gmail.com (fill in
+#               the dots).
 #      CREATED: 03/13/2012
-#     REVISION: 04/27/2012
+#     REVISION: 05/27/2012
 #
 #======================================================================= 
+
+source ~/code/bash/lsdirs/getoptx/getoptx.bash
+source ~/code/bash/lsdirs/upvars/upvars.bash
 
 #===  FUNCTION =========================================================
 #
@@ -42,7 +56,7 @@ usage () {
 	listed in PATH...
 
 	--max-size The maximum size to be observed.
-	             Some useful sizes: 
+	             Some useful sizes to have in mind: 
 	               4167680 (4070 Mb).
 	               4595712 (4488 Mb) (DVD-R full capacity).
 	EOF
