@@ -2,7 +2,7 @@
 
 #=======================================================================
 #
-# lsdirs.bash
+# lsdirs.bash (See description below).
 # Copyright (C) 2012  Marcelo Javier Auquer
 #
 # This program is free software: you can redistribute it and/or modify
@@ -32,7 +32,7 @@
 #        NOTES: Any suggestion is welcomed at auq..r@gmail.com (fill in
 #               the dots).
 #      CREATED: 03/13/2012
-#     REVISION: 05/27/2012
+#     REVISION: 05/28/2012
 #
 #======================================================================= 
 
