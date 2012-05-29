@@ -20,21 +20,19 @@
 #
 #        USAGE: See function usage below.
 #
-#  DESCRIPTION: Print a list (a subset) of directories which is a
-#               combination of the set of directories listed in PATH...,
-#               whose total size in bytes is less than the amount
-#               specified in the max-size option and greater than
-#               the size of any other combination that satisfies that
-#               condition.
+#  DESCRIPTION: Print a list of directories which represents a
+#               combination of those listed in PATH..., with the
+#               particularity that the arithmetic sum of the size of
+#               each included directory is less than the amount
+#               specified as the argument of the max-size option of the
+#               command and greater than the size of any other
+#               combination that satisfies that condition.
 #
 # REQUIREMENTS: upvars.bash, getoptx.bash
 #         BUGS: --
 #        NOTES: Any suggestion is welcomed at auq..r@gmail.com (fill in
 #               the dots).
-#      CREATED: 03/13/2012
-#     REVISION: 05/28/2012
 #
-#======================================================================= 
 
 source ~/code/bash/lsdirs/getoptx/getoptx.bash
 source ~/code/bash/lsdirs/upvars/upvars.bash
@@ -47,7 +45,6 @@ source ~/code/bash/lsdirs/upvars/upvars.bash
 #
 # DESCRIPTION: Print a help message to stdout.
 #
-#=======================================================================
 usage () {
 	cat <<- EOF
 	Usage: lsdirs --max-size KILOBYTES PATH... 
@@ -76,7 +73,6 @@ usage () {
 #              LENGTH:  The amount of numbers in each combination to be
 #                       formed.
 #
-#=======================================================================
 get_masks () {
 	for (( i=0; i<$2; i++ ))
 	do
@@ -102,7 +98,6 @@ get_masks () {
 #              MAXSIZE: A size in bytes.
 #              PATH...: A list of directories.
 #
-#=======================================================================
 get_maxdirs () {
 	local sortdu=$(du -s ${@:3} | sort -n | cut -f1)
 	local acsize=0
@@ -131,7 +126,6 @@ get_maxdirs () {
 #              MAXSIZE: A size in bytes.
 #              PATH...: A list of directories.
 #
-#=======================================================================
 get_mindirs () {
 	local sortdu=$(du -s ${@:3} | sort -nr | cut -f1)
 	local acsize=0
@@ -163,7 +157,6 @@ get_mindirs () {
 #              MAX:     Maximum number of ones in a mask to be valid.
 #              PATH...: A list of directories.
 #
-#=======================================================================
 is_validmask () {
 	local ones=${1//[^1]}
 	if [ \( ${#ones} -lt $2 \) -o \( ${#ones} -gt $3 \) ] 
@@ -177,16 +170,10 @@ is_validmask () {
 # BEGINNING OF MAIN CODE
 #-----------------------------------------------------------------------
 
-#-----------------------------------------------------------------------
 # Checking for a well-formatted command line.
-#-----------------------------------------------------------------------
-
 [[ $# -eq 0 ]] && usage && exit
 
-#-----------------------------------------------------------------------
 # Parse command line options.
-#-----------------------------------------------------------------------
-
 while getoptex "max-size:" "${@}"
 do
 	case "$OPTOPT" in
@@ -196,10 +183,7 @@ do
 done
 shift $(($OPTIND-1))
 
-#-----------------------------------------------------------------------
 # Filter directories larger than MAXSIZE.
-#-----------------------------------------------------------------------
-
 for arg
 do
 	duarr=( $(du -s $arg) )
@@ -211,19 +195,14 @@ do
 	fi
 done
 
-#-----------------------------------------------------------------------
-# If no directory is small than MAXSIZE exit with message.
-#-----------------------------------------------------------------------
-
+# If no directory is small than MAXSIZE exit, with message.
 if [ ${#dirarr[@]} -eq 0 ]
 then
 	printf "No directory is smaller than the specified MAXSIZE."
 	exit 0
 fi
 
-#-----------------------------------------------------------------------
 # Select the best combination of directories.
-#-----------------------------------------------------------------------
 get_maxdirs maxdirs $maxsize ${dirarr[@]}
 get_mindirs mindirs $maxsize ${dirarr[@]}
 get_masks masks ${#dirarr[@]}
@@ -246,10 +225,7 @@ do
 	fi
 done
 
-#-----------------------------------------------------------------------
 # Print the results.
-#-----------------------------------------------------------------------
-
 for (( f=0; f < ${#bestmask}; f++ ))
 do
 	[[ ${bestmask:$f:1} == 1 ]] && echo ${dirarr[$f]}
