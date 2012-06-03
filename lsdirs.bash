@@ -195,7 +195,7 @@ do
 	fi
 done
 
-# If no directory is small than MAXSIZE exit, with message.
+# If no directory is smaller than MAXSIZE, exit with message.
 if [ ${#dirarr[@]} -eq 0 ]
 then
 	printf "No directory is smaller than the specified MAXSIZE."
