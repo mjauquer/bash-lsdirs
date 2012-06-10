@@ -1,7 +1,5 @@
 #! /bin/bash
 
-#=======================================================================
-#
 # lsdirs.bash (See description below).
 # Copyright (C) 2012  Marcelo Javier Auquer
 #
@@ -32,14 +30,11 @@
 #         BUGS: --
 #        NOTES: Any suggestion is welcomed at auq..r@gmail.com (fill in
 #               the dots).
-#
 
 source ~/code/bash/lsdirs/getoptx/getoptx.bash
 source ~/code/bash/lsdirs/upvars/upvars.bash
 
 #===  FUNCTION =========================================================
-#
-#        NAME: usage
 #
 #       USAGE: usage
 #
@@ -61,16 +56,14 @@ usage () {
 
 #===  FUNCTION =========================================================
 #
-#        NAME: get_masks
-#
 #       USAGE: get_masks VARNAME LENGTH
 #
 # DESCRIPTION: Generate a spaced-separated list of all posible
 #              combinations of ones and zeros of the specified length.
 #              Store that list in the caller's variable VARNAME.
 #
-#  PARAMETERS: VARNAME: A variable name.
-#              LENGTH:  The amount of numbers in each combination to be
+#  PARAMETERS: VARNAME  A variable name.
+#              LENGTH   The amount of numbers in each combination to be
 #                       formed.
 #
 get_masks () {
@@ -85,8 +78,6 @@ get_masks () {
 
 #===  FUNCTION =========================================================
 #
-#        NAME: get_maxdirs
-#
 #       USAGE: get_maxdirs VARNAME MAXSIZE PATH...
 #
 # DESCRIPTION: Calculate the maximum amount of directories that can be
@@ -94,9 +85,9 @@ get_masks () {
 #              limit. Store that number in the caller's variable
 #              VARNAME.
 #
-#  PARAMETERS: VARNAME: A variable name.
-#              MAXSIZE: A size in bytes.
-#              PATH...: A list of directories.
+#  PARAMETERS: VARNAME  A variable name.
+#              MAXSIZE  A size in bytes.
+#              PATH...  A list of directories.
 #
 get_maxdirs () {
 	local sortdu=$(du -s ${@:3} | sort -n | cut -f1)
@@ -114,17 +105,15 @@ get_maxdirs () {
 
 #===  FUNCTION =========================================================
 #
-#        NAME: get_mindirs
-#
 #       USAGE: get_mindirs VARNAME MAXSIZE PATH...
 #
 # DESCRIPTION: Calculate the minimum amount of directories to be
 #              included in a subset. Store that number in the caller's
 #              variable VARNAME.
 #
-#  PARAMETERS: VARNAME: A variable name.
-#              MAXSIZE: A size in bytes.
-#              PATH...: A list of directories.
+#  PARAMETERS: VARNAME  A variable name.
+#              MAXSIZE  A size in bytes.
+#              PATH...  A list of directories.
 #
 get_mindirs () {
 	local sortdu=$(du -s ${@:3} | sort -nr | cut -f1)
@@ -142,8 +131,6 @@ get_mindirs () {
 
 #===  FUNCTION =========================================================
 #
-#        NAME: is_validmask
-#
 #       USAGE: is_validmask MASK MIN MAX PATH...
 #
 # DESCRIPTION: Return 0 if MASK has a valid number of ones that allows
@@ -152,10 +139,10 @@ get_mindirs () {
 #              the total size limit specified by MAXSIZE. Otherwise,
 #              return 1.
 #
-#  PARAMETERS: MASK:    A string containing only ones and zeros.
-#              MIN:     Minimum number of ones in a mask to be valid.
-#              MAX:     Maximum number of ones in a mask to be valid.
-#              PATH...: A list of directories.
+#  PARAMETERS: MASK     A string containing only ones and zeros.
+#              MIN      Minimum number of ones in a mask to be valid.
+#              MAX      Maximum number of ones in a mask to be valid.
+#              PATH...  A list of directories.
 #
 is_validmask () {
 	local ones=${1//[^1]}
