@@ -44,8 +44,8 @@ usage () {
 	cat <<- EOF
 	Usage: lsdirs --max-size KILOBYTES PATH... 
 	
-	Change the name of files and subdirectories of the directories
-	listed in PATH...
+	Print the best combination of directories whose total disk usage
+	is minor than the specified value in the --max-size.
 
 	--max-size The maximum size to be observed.
 	             Some useful sizes to have in mind: 
